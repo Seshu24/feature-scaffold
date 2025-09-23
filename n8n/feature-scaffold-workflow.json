@@ -1,0 +1,54 @@
+{
+  "name": "Feature Scaffold PR Creation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "create-pr",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "owner": "{{$json[\"repository\"][\"owner\"]}}",
+        "repository": "{{$json[\"repository\"][\"name\"]}}",
+        "title": "{{$json[\"featureName\"]}} - Scaffold",
+        "base": "main",
+        "head": "feature/{{$json[\"featureName\"]}}",
+        "commitMessage": "feat: Add scaffold for {{$json[\"featureName\"]}}",
+        "fileContent": "{{$json[\"generatedCode\"]}}",
+        "filePath": "features/{{$json[\"featureName\"]}}/index.ts",
+        "additionalParameters": {
+          "body": "{{$json[\"description\"]}}\n\nTech Stack: {{$json[\"techStack\"]}}"
+        }
+      },
+      "name": "GitHub Create PR",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "GitHub Create PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
