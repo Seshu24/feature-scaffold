@@ -54,3 +54,4 @@ lerna-debug.log*
 
 # Windows
 Thumbs.db
+/n8n
