@@ -105,7 +105,6 @@ sequenceDiagram
 │   └── src/                # Source files
 │       ├── routes/         # API routes
 │       └── index.ts        # Server entry
-└── n8n/                    # n8n workflow files
 ```
 
 ## Features
