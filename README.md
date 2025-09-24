@@ -93,11 +93,6 @@ sequenceDiagram
    npm start
    ```
 
-4. Configure n8n:
-   - Import the workflow from `n8n/feature-scaffold-workflow.json`
-   - Update the GitHub credentials in the workflow
-   - Activate the workflow
-
 ## Project Structure
 
 ```
