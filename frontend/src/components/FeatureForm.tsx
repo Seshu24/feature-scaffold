@@ -18,7 +18,7 @@ function FeatureForm() {
     
     try {
       // First, generate code using OpenAI
-      const openaiResponse = await fetch('http://localhost:3001/api/openai/generate', {
+      const geminiResponse = await fetch('http://localhost:3001/api/gemini/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,9 +26,9 @@ function FeatureForm() {
         body: JSON.stringify(formData),
       });
 
-      const openaiData = await openaiResponse.json();
+      const geminiData = await geminiResponse.json();
       
-      if (!openaiData.success) {
+      if (!geminiData.success) {
         throw new Error('Failed to generate code');
       }
 
@@ -40,7 +40,7 @@ function FeatureForm() {
         },
         body: JSON.stringify({
           ...formData,
-          generatedCode: openaiData.generatedCode
+          generatedCode: geminiData.generatedCode
         }),
       });
 

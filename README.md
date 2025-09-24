@@ -1,174 +1,153 @@
 # Feature Scaffolding Agent
 
-An AI-driven prototype that generates new feature boilerplate, CI/CD pipelines, and notifications in minutes.
-
----
+An AI-powered tool that generates feature scaffolds and creates pull requests automatically using Google's Gemini API.
 
 ## Overview
 
-This repository contains a minimal end-to-end prototype demonstrating how to scaffold a new feature using AI and workflow automation. Users submit feature details through a React UI, and the system generates code templates, commits them to GitHub, and triggers a CI/CD pipeline. Notifications are sent via n8n to keep stakeholders informed.
-
----
+This project provides an end-to-end solution for automated feature scaffolding. Users can submit feature requirements through a React UI, which then uses Gemini AI to generate appropriate code templates. The system automatically creates a pull request in GitHub with the generated code via n8n workflow automation.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  subgraph UI
-    A[React Web UI]
-  end
+    subgraph Frontend
+        A[React UI]
+    end
 
-  subgraph API
-    B[Node.js/Express API]
-  end
+    subgraph Backend
+        B[Express Server]
+        C[Gemini API]
+    end
 
-  subgraph Orchestrator
-    C[Azure Function]
-    D[Azure OpenAI Service]
-    E[n8n Workflow Engine]
-  end
+    subgraph Automation
+        D[n8n Workflow]
+        E[GitHub API]
+    end
 
-  subgraph Delivery
-    F[GitHub Repo]
-    G[GitHub Actions CI/CD]
-    H[Azure App Service]
-  end
-
-  A --> B
-  B --> C
-  C --> D
-  C --> E
-  E --> F
-  F --> G
-  G --> H
+    A -->|Feature Request| B
+    B -->|Generate Code| C
+    B -->|Create PR| D
+    D -->|Commit & PR| E
 ```
-
----
 
 ## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
-  participant PM as Product Manager
-  participant UI as React UI
-  participant API as Backend API
-  participant OR as Agent Orchestrator
-  participant LLM as Azure OpenAI
-  participant WF as n8n Workflow
-  participant GH as GitHub & CI/CD
+    participant U as User
+    participant R as React Frontend
+    participant E as Express Backend
+    participant G as Gemini AI
+    participant N as n8n Workflow
+    participant GH as GitHub
 
-  PM->>UI: 1. Submit feature request
-  UI->>API: 2. POST /scaffold
-  API->>OR: 3. Invoke orchestrator
-  OR->>LLM: 4. Generate scaffold code
-  OR->>WF: 5. Wrap and hand off
-  WF->>GH: 6. Commit scaffold
-  GH->>GH: 7. Run CI/CD pipeline
-  WF->>UI: 8. Notify completion
-  UI->>PM: 9. Display scaffold ready
+    U->>R: Submit feature details
+    R->>E: POST /api/gemini/generate
+    E->>G: Generate scaffold code
+    G-->>E: Return generated code
+    E->>N: POST to webhook
+    N->>GH: Create branch
+    N->>GH: Commit files
+    N->>GH: Create PR
+    N-->>R: Return PR details
+    R-->>U: Show success message
 ```
 
----
+## Tech Stack
+
+- **Frontend**: React 18 with TypeScript
+- **Backend**: Express.js with TypeScript
+- **AI Service**: Google Gemini API
+- **Automation**: n8n workflow engine
+- **Version Control**: GitHub API
 
 ## Prerequisites
 
-- Node.js (v16 or higher)  
-- npm or yarn  
-- Azure Functions Core Tools (`npm install -g azure-functions-core-tools@4`)  
-- Azure subscription with OpenAI access  
-- n8n instance (self-hosted or cloud)  
-- GitHub account and repository  
-
----
+- Node.js v16 or higher
+- npm or yarn
+- GitHub account and repository
+- Google Cloud account with Gemini API access
+- n8n instance running locally or hosted
 
 ## Installation
 
-1. Clone this repository  
+1. Clone the repository:
    ```bash
-   git clone https://github.com/yourorg/feature-scaffolding-agent.git
-   cd feature-scaffolding-agent
+   git clone https://github.com/yourusername/feature-scaffold.git
+   cd feature-scaffold
    ```
 
-2. Set up the Backend API  
+2. Set up the backend:
    ```bash
-   cd api
+   cd backend
    npm install
-   export AZURE_FUNCTION_URL=<your_azure_function_url>
+   # Create .env file with:
+   # GEMINI_API_KEY=your_gemini_api_key
+   npm run dev
+   ```
+
+3. Set up the frontend:
+   ```bash
+   cd frontend
+   npm install
    npm start
    ```
 
-3. Set up the React UI  
-   ```bash
-   cd ../ui
-   npm install
-   npm start
-   ```
+4. Configure n8n:
+   - Import the workflow from `n8n/feature-scaffold-workflow.json`
+   - Update the GitHub credentials in the workflow
+   - Activate the workflow
 
-4. Deploy Azure Function  
-   ```bash
-   cd ../orchestrator
-   func azure functionapp publish <your_function_app_name>
-   ```
+## Project Structure
 
-5. Configure n8n Workflow  
-   - Add HTTP Request Trigger for the orchestrator callback  
-   - Add GitHub node to commit files  
-   - Add notification node (Slack, Teams, etc.)
+```
+├── frontend/                 # React frontend
+│   ├── public/              # Static files
+│   └── src/                 # Source files
+│       ├── components/      # React components
+│       └── types/          # TypeScript types
+├── backend/                 # Express backend
+│   └── src/                # Source files
+│       ├── routes/         # API routes
+│       └── index.ts        # Server entry
+└── n8n/                    # n8n workflow files
+```
 
----
+## Features
 
-## Usage
+- **React UI Form**: Input feature requirements with name, description, and tech stack
+- **Gemini AI Integration**: Generate code scaffolds using Google's Gemini API
+- **Express Backend**: Handle API requests and coordinate with Gemini
+- **n8n Automation**: Create GitHub branches, commits, and pull requests
+- **GitHub Integration**: Automated PR creation with generated code
 
-1. Open the React UI in your browser  
-2. Authenticate with GitHub if prompted  
-3. Enter a feature name, description, and tech-stack choice  
-4. Click **Generate Scaffold**  
-5. Watch for a pull request in GitHub with the generated code  
-6. Verify CI/CD pipeline execution and staging deployment  
+## Environment Variables
 
----
+### Backend (.env)
+```
+GEMINI_API_KEY=your_gemini_api_key
+PORT=3001
+```
 
-## Component Breakdown
+## Development
 
-- **React Web UI**  
-  Captures feature metadata and displays process status.
+- Frontend runs on port 3000
+- Backend runs on port 3001
+- n8n webhook listens on port 5678
 
-- **Node.js/Express API**  
-  Validates input, handles authentication, and forwards requests.
+## API Endpoints
 
-- **Azure Function (Agent Orchestrator)**  
-  Coordinates calls to the LLM and posts results to n8n.
-
-- **Azure OpenAI Service**  
-  Generates boilerplate code, configuration files, and tests.
-
-- **n8n Workflow Engine**  
-  Automates GitHub commits and stakeholder notifications.
-
-- **GitHub Actions CI/CD**  
-  Lints, tests, and deploys scaffolded code to Azure App Service.
-
----
-
-## Next Steps
-
-- Replace hard-coded prompts with dynamic template engine  
-- Implement incremental status updates in the UI  
-- Add error handling and retry logic in n8n  
-- Extend scaffolding support to multiple languages and frameworks  
-- Collect user feedback and refine LLM prompts  
-
----
+- `POST /api/gemini/generate`: Generate code scaffold using Gemini AI
+- `POST /api/scaffold`: Create GitHub PR with generated code
 
 ## Contributing
 
-1. Fork the repository  
-2. Create a feature branch (`git checkout -b feature/name`)  
-3. Commit your changes and push (`git push origin feature/name`)  
-4. Open a pull request with a clear description  
-
----
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
