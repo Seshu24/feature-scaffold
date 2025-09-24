@@ -1,0 +1,13 @@
+{
+  "name": "kafka-listener",
+  "version": "1.0.0",
+  "description": "Boilerplate Kafka listener with Express",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "kafkajs": "^1.15.0"
+  }
+}
